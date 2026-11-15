@@ -53,3 +53,17 @@ def test_subprocess_domain_failure_is_canonical_and_exit_two():
     assert response["error_code"] == "not_configured"
     assert response["errors"][0] == {"code": response["error_code"], "message": response["error"]}
     assert process.stderr == ""
+
+
+def test_readiness_allows_publishing_without_webhook_only_app_secret():
+    request = action("publish_post")
+    connection = request["action"]["target"]["connection"]
+    connection["secrets"].pop("app_secret")
+    request.update(
+        mode="query", query={"query_id": "provider_health"}, target={"connection": connection}
+    )
+    request.pop("action")
+    response = invoke(request)
+    assert response["ok"] is True
+    assert response["result"]["configured"] is True
+    assert response["result"]["webhook_configured"] is False

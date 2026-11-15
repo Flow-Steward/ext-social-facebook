@@ -3,17 +3,16 @@
 Standalone `flowsteward.facebook` tool provider, version 0.1.0, host contract
 `extension_host_v2`, public extension SDK 0.5.0 or later. The generic callback
 profile requires extension runtime capability 1.9.0, delivered with app release
-0.9.18 or later; these are separate version numbers. The current checkpoint
-contains declarations and tests; provider implementation and validation are pending.
-Do not install or publish this checkpoint.
+0.9.18 or later; these are separate version numbers. Provider runtime is implemented; coordinated package validation is pending.
+Do not install or publish before that validation.
 
 ## Connect a Page
 
 Create a project connection of type **Facebook Page**, one per Page. Enter the
 numeric Page ID, Meta app ID and an explicit supported Graph API version. The
 contract fixtures use **v27.0**; no provider account has been tested. There is no
-auto-latest version selection. Store a **Page access token** and the **Meta app
-secret** as connection secrets. Never put tokens in workflow inputs or URLs.
+auto-latest version selection. Store a **Page access token** as a connection secret. The **Meta app secret**
+is optional for publishing and reading; store it before receiving comment webhooks. Never put tokens in workflow inputs or URLs.
 
 The token's app user needs appropriate Page tasks and permissions for the calls:
 `pages_manage_posts` to publish, `pages_manage_engagement` to reply,
@@ -63,7 +62,7 @@ operator setup; saving a Flow Steward callback alone does not subscribe Meta.
 The host handles `hub.mode=subscribe`, `hub.verify_token` and `hub.challenge` without
 invoking extension code. POST bodies use exact raw-body HMAC-SHA256 verification
 with `X-Hub-Signature-256: sha256=<hex>` and this anchor's stored `app_secret`.
-No unauthenticated request reaches event normalization.
+A missing signing key rejects incoming POST signatures. No unauthenticated request reaches event normalization.
 
 A Meta app has one callback configuration for this object. For several Pages on
 the same app, choose **one webhook anchor connection** for intake. Configure
@@ -96,8 +95,8 @@ profile is available and the coordinated Docker gate slot is free:
 ./core/entrypoints/cli/scripts/lint.sh --checks extension-static,extension-tests --extension-root /absolute/path/to/flowsteward_facebook
 ```
 
-The first command is the pending behavioral RED checkpoint. No gate has been run
-for this scaffold. Final releases need both checks green, descriptor/subprocess
+The first command reached the expected publish assertion failure on the scaffold.
+The implemented candidate still needs both checks green, descriptor/subprocess
 validation and host consumer duplicate-delivery evidence before bundling.
 
 ## Official references

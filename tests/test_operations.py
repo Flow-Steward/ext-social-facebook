@@ -277,3 +277,21 @@ def test_comment_without_proven_page_ownership_cannot_be_replied_to(graph):
     assert response["error_code"] == "foreign_object"
     assert response["definitely_no_external_effect"] is True
     assert [request["method"] for request in graph.requests] == ["GET"]
+
+
+@pytest.mark.parametrize("body", [b"not-json", {"success": True}])
+def test_write_without_success_identity_is_ambiguous(graph, body):
+    graph.reply(200, body)
+    response = invoke(action("publish_post", {"text": "Once"}))
+    assert response["error_code"] == "ambiguous_external_effect"
+    assert response["external_effect_status"] == "timeout_unknown"
+    assert response.get("definitely_no_external_effect") is not True
+    assert len(graph.requests) == 1
+
+
+def test_reply_ownership_read_timeout_proves_no_write_was_sent(graph):
+    graph.fail(TimeoutError("read timeout"))
+    response = invoke(action("reply_to_comment", {"comment_id": COMMENT, "text": "Once"}))
+    assert response["error_code"] == "timeout"
+    assert response["definitely_no_external_effect"] is True
+    assert [request["method"] for request in graph.requests] == ["GET"]

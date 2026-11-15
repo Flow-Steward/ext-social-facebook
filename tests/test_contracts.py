@@ -154,3 +154,17 @@ def test_runtime_and_tests_do_not_import_core_or_sibling_extensions():
                 else []
             )
             assert all(name.split(".")[0] not in forbidden for name in names), file
+
+
+def test_app_secret_is_optional_for_publishing_but_declared_for_callback_auth():
+    schema = load("schemas/secrets.schema.yaml")
+    connection = load("contracts/connection_types.yaml")["connection_types"][0]
+    form = load("ui/components/connection_form.yaml")
+    assert schema["required"] == connection["secret_schema"]["required"] == ["access_token"]
+    assert "app_secret" in schema["properties"]
+    assert form["data"]["required_secret_fields"] == ["access_token"]
+    fields = {row["path"]: row for row in form["fields"]}
+    assert fields["app_secret"].get("required") is not True
+    assert load("extension.yaml")["callbacks"][0]["auth"]["secret_name"] == "app_secret"
+    query = load("ui/queries/queries.yaml")["queries"][0]
+    assert query["connection"] == {"connection_type_ids": ["facebook_page"]}

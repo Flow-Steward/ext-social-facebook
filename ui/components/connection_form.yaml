@@ -1,7 +1,7 @@
 component_id: "facebook_connection"
 type: "connection_form"
 title: "Facebook Page connection"
-description: "Create one connection per Page. Store the Page token and app secret in encrypted project secret storage."
+description: "Create one connection per Page. Store the Page token in encrypted project secret storage; add the app secret to receive comments."
 data:
   connection_kind: "extension"
   connection_type: "facebook_page"
@@ -15,7 +15,6 @@ data:
     - "app_secret"
   required_secret_fields:
     - "access_token"
-    - "app_secret"
 defaults:
   display_name: "Facebook Page"
 fields:
@@ -54,4 +53,5 @@ fields:
     path: "app_secret"
     label: "Meta app secret"
     widget: "secret"
-    required: true
+    required: false
+    help: "Required only to receive signed comment webhooks."

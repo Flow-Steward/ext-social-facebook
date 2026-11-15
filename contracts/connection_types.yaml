@@ -41,7 +41,6 @@ connection_types:
       additionalProperties: false
       required:
         - "access_token"
-        - "app_secret"
       properties:
         access_token:
           type: "string"
