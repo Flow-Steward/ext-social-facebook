@@ -57,7 +57,7 @@ def normalize(values: dict[str, Any], context: RuntimeContext) -> dict[str, Any]
     for entry in entries:
         entry = _object(entry)
         page, changes = entry.get("id"), entry.get("changes")
-        if page not in allowed or not isinstance(changes, list):
+        if not isinstance(page, str) or page not in allowed or not isinstance(changes, list):
             continue
         for change in changes:
             change = _object(change)

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import json
-import subprocess
+import subprocess  # nosec B404 -- Local fixed-argv runtime handshake; no shell or external input.
 import sys
 from pathlib import Path
 
@@ -24,7 +24,7 @@ def main() -> int:
     }
     healthy = False
     try:
-        process = subprocess.run(
+        process = subprocess.run(  # nosec B603 -- Fixed interpreter/script, resolved package cwd, timeout.
             [sys.executable, "main.py"],
             cwd=Path(__file__).resolve().parent,
             input=json.dumps(payload),
