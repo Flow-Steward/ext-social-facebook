@@ -42,8 +42,8 @@ fields:
   -
     path: "webhook_page_ids"
     label: "Webhook Page allowlist"
-    widget: "json"
-    help: "Optional JSON list of Page IDs for this app callback anchor. Omit to allow only this connection’s Page."
+    widget: "tag_picker"
+    help: "Add each accepted Page ID. Leave untouched on creation to accept this connection’s Page. Removing every added Page saves an empty allowlist and accepts no comments. To restore own-Page intake, add this connection’s Page ID."
   -
     path: "access_token"
     label: "Page access token"

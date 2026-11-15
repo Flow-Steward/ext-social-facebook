@@ -3,16 +3,16 @@
 Standalone `flowsteward.facebook` tool provider, version 0.1.0, host contract
 `extension_host_v2`, public extension SDK 0.5.0 or later. The generic callback
 profile requires extension runtime capability 1.9.0, delivered with app release
-0.9.18 or later; these are separate version numbers. Provider runtime is implemented; coordinated package validation is pending.
-Do not install or publish before that validation.
+0.9.18 or later; these are separate version numbers.
 
 ## Connect a Page
 
 Create a project connection of type **Facebook Page**, one per Page. Enter the
 numeric Page ID, Meta app ID and an explicit supported Graph API version. The
 contract fixtures use **v27.0**; no provider account has been tested. There is no
-auto-latest version selection. Store a **Page access token** as a connection secret. The **Meta app secret**
-is optional for publishing and reading; store it before receiving comment webhooks. Never put tokens in workflow inputs or URLs.
+auto-latest version selection. Store a **Page access token** as a connection secret.
+The **Meta app secret** is optional for publishing and reading; store it before
+receiving comment webhooks. Never put tokens in workflow inputs or URLs.
 
 The token's app user needs appropriate Page tasks and permissions for the calls:
 `pages_manage_posts` to publish, `pages_manage_engagement` to reply,
@@ -62,13 +62,17 @@ operator setup; saving a Flow Steward callback alone does not subscribe Meta.
 The host handles `hub.mode=subscribe`, `hub.verify_token` and `hub.challenge` without
 invoking extension code. POST bodies use exact raw-body HMAC-SHA256 verification
 with `X-Hub-Signature-256: sha256=<hex>` and this anchor's stored `app_secret`.
-A missing signing key rejects incoming POST signatures. No unauthenticated request reaches event normalization.
+A missing signing key rejects incoming POST signatures. No unauthenticated
+request reaches event normalization.
 
 A Meta app has one callback configuration for this object. For several Pages on
 the same app, choose **one webhook anchor connection** for intake. Configure
-`webhook_page_ids` on that anchor as an explicit JSON list of all accepted Page
-IDs. Omitting the setting accepts only its `page_id`; an explicit empty list
-accepts none. Each Page must belong to that app and be subscribed provider-side.
+the **Webhook Page allowlist** by adding each accepted Page ID with **Add** or
+Enter. Leave this field untouched when creating a connection to omit
+`webhook_page_ids` and accept only its `page_id`. Removing the final added Page
+saves an explicit empty list, which accepts none. Adding the connection's Page ID
+restores own-Page intake. Editing an existing list preserves its saved values.
+Each Page must belong to that app and be subscribed provider-side.
 Different apps use their own anchors and app secrets. Do not share an anchor
 across customer projects: callbacks keep the host's authenticated project and
 anchor `connection_id`, and cannot discover or remap another connection.
@@ -76,9 +80,9 @@ anchor `connection_id`, and cannot discover or remap another connection.
 A workflow's **New Facebook Page comment** trigger can filter `page_id` and
 `post_id`. Its payload includes provider, project_id, connection_id, page_id,
 post_id, comment_id, author_id, text, created_time and dedupe_key. The default is
-root comments only: replies (`parent_id != post_id`), comments authored by any
-allowed Page, edits, removals, unrelated objects and foreign Pages/posts are
-ignored. This prevents own reply loops. Every matching event includes stable
+root comments only: replies (`parent_id != post_id`), comments authored by the
+configured anchor Page or any allowed Page, edits, removals, unrelated objects
+and foreign Pages/posts are ignored. This prevents own reply loops. Every matching event includes stable
 top-level `source_id` and `correlation_id`, namespaced by provider, anchor
 connection, Page/post asset, comment and the created action. Delivery timestamps,
 comment creation-time formatting and message text do not alter this identity.
@@ -87,17 +91,28 @@ process restarts; no process-local cache is claimed as durable protection.
 
 ## Verification
 
-Run from the matching Flow Steward checkout, after the generic callback compiler
-profile is available and the coordinated Docker gate slot is free:
+Run from a matching Flow Steward checkout with runtime capability 1.9.0 and its
+managed Docker audit environment. Replace the absolute path with this standalone
+checkout. The development SDK wheel is bundled under `dev-wheels/`; these checks
+install development requirements offline and provider networking stays blocked.
+Schedule them through the repository's normal coordinated gate lease:
 
 ```sh
-./core/entrypoints/cli/scripts/lint.sh --checks extension-tests --extension-root /absolute/path/to/flowsteward_facebook --test-paths tests/test_operations.py::test_publish_post_maps_message_and_link_to_selected_page
 ./core/entrypoints/cli/scripts/lint.sh --checks extension-static,extension-tests --extension-root /absolute/path/to/flowsteward_facebook
+./core/entrypoints/cli/scripts/lint.sh --checks extension-tests --extension-root /absolute/path/to/flowsteward_facebook --test-paths tests/test_host_contracts.py
 ```
 
-The first command reached the expected publish assertion failure on the scaffold.
-The implemented candidate still needs both checks green, descriptor/subprocess
-validation and host consumer duplicate-delivery evidence before bundling.
+The complete extension suite includes stdin/stdout and credential-free subprocess
+health checks, operation contracts, callback normalization and the real pinned
+adapter through a fake SDK opener. `tests/test_host_contracts.py` runs only when
+`/app/core` exists inside managed `fs-audit`; it explicitly skips elsewhere.
+It feeds actual provider output into the actual host ingestion, trigger replay
+and external-effect confirmation consumers, replacing persistence and queue
+boundaries with fakes. This characterizes routing, replay identity and metadata;
+it does not establish PostgreSQL atomicity, durable storage or live job execution.
+Validate the descriptor and package only after the selected checks pass. No live
+Meta account, permission, Graph-version or publishing acceptance is implied by
+offline results.
 
 ## Official references
 

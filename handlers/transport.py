@@ -11,7 +11,7 @@ from urllib.parse import urlencode, urlsplit
 
 from flowsteward_extension_sdk import Request, open_pinned_url
 
-from handlers.responses import ProviderFailure
+from handlers.responses import ProviderFailure, WriteBoundary
 
 MAX_BYTES = 2 * 1024 * 1024
 TIMEOUT_SECONDS = 10.0
@@ -102,10 +102,18 @@ def _redact(value: Any, secrets: tuple[str, ...]) -> Any:
 class GraphClient:
     """One selected Page's Graph client; a write is never automatically retried."""
 
-    def __init__(self, version: str, token: str, app_secret: str = "") -> None:
+    def __init__(
+        self,
+        version: str,
+        token: str,
+        app_secret: str = "",
+        *,
+        boundary: WriteBoundary | None = None,
+    ) -> None:
         self.version = version
         self.token = token
         self.app_secret = app_secret
+        self.boundary = boundary if boundary is not None else WriteBoundary()
 
     def request(self, method: str, path: str, values: dict[str, Any]) -> dict[str, Any]:
         url = f"https://graph.facebook.com/{self.version}/{path}"
@@ -118,6 +126,10 @@ class GraphClient:
             headers["Content-Type"] = "application/x-www-form-urlencoded"
             body = urlencode(fields).encode("utf-8")
         try:
+            if method == "POST":
+                # Set before crossing the exchange seam: any later parsing or
+                # mapping exception must preserve uncertainty about remote effects.
+                self.boundary.attempts += 1
             status, _, raw = _http_exchange(
                 method,
                 url,
@@ -139,6 +151,8 @@ class GraphClient:
             if status >= 400 or "error" in result:
                 detail = result.get("error")
                 code = detail.get("code") if isinstance(detail, dict) else None
+                if type(code) is not int:
+                    raise ProviderFailure("provider_unavailable", uncertain=method == "POST")
                 if status == 401 or code == 190:
                     failure = "authentication_failed"
                 elif status == 403 or code in {10, 200}:
@@ -150,6 +164,8 @@ class GraphClient:
                 else:
                     failure = "provider_unavailable"
                 # Only explicit Graph rejection with a 4xx response proves no write.
+                if method == "POST" and 400 <= status < 500:
+                    self.boundary.proven_rejections += 1
                 raise ProviderFailure(
                     failure, uncertain=method == "POST" and not (400 <= status < 500)
                 )

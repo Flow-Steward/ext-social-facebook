@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 
@@ -12,6 +13,20 @@ class ProviderFailure(Exception):
         self.code = code
         self.uncertain = uncertain
         super().__init__(code)
+
+
+@dataclass
+class WriteBoundary:
+    """Invocation-local proof across all attempted writes; never a replay ledger."""
+
+    attempts: int = 0
+    proven_rejections: int = 0
+
+    def classify(self, error: ProviderFailure) -> ProviderFailure:
+        """Once sent, only proof for every write permits a no-effect failure."""
+        if self.attempts > self.proven_rejections:
+            return ProviderFailure("ambiguous_external_effect", uncertain=True)
+        return error
 
 
 def success(

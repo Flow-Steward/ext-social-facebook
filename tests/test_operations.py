@@ -1,4 +1,4 @@
-"""Behavioral provider contract. The scaffold must fail the first publish assertion."""
+"""Selected Page operations, authorization and external-effect outcome contracts."""
 
 from __future__ import annotations
 
@@ -366,3 +366,20 @@ def test_unexpected_post_send_result_error_cannot_prove_no_effect(
     assert sum(request["method"] == "POST" for request in graph.requests) == 1
     assert len(graph.requests) == (2 if operation == "reply_to_comment" else 1)
     assert TOKEN not in json.dumps(response)
+
+
+def test_later_provider_rejection_does_not_erase_an_earlier_write(graph):
+    from handlers.responses import ProviderFailure, WriteBoundary
+    from handlers.transport import GraphClient
+
+    boundary = WriteBoundary()
+    client = GraphClient("v27.0", TOKEN, boundary=boundary)
+    graph.reply(200, {"id": POST})
+    graph.reply(403, {"error": {"code": 200}})
+    assert client.request("POST", PAGE + "/feed", {"message": "First"})["id"] == POST
+    with pytest.raises(ProviderFailure) as caught:
+        client.request("POST", PAGE + "/feed", {"message": "Second"})
+    classified = boundary.classify(caught.value)
+    assert classified.code == "ambiguous_external_effect"
+    assert classified.uncertain is True
+    assert [request["method"] for request in graph.requests] == ["POST", "POST"]

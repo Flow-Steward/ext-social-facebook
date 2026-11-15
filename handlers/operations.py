@@ -7,7 +7,7 @@ from typing import Any
 
 from flowsteward_extension_sdk import RuntimeConnection, assert_safe_remote_https_url
 
-from handlers.responses import ProviderFailure, success
+from handlers.responses import ProviderFailure, WriteBoundary, success
 from handlers.transport import GraphClient
 
 WRITES = {"publish_post", "publish_photo", "reply_to_comment"}
@@ -29,7 +29,9 @@ def identifier(value: Any) -> str:
     return value
 
 
-def configured(connection: RuntimeConnection | None) -> tuple[str, GraphClient]:
+def configured(
+    connection: RuntimeConnection | None, boundary: WriteBoundary | None = None
+) -> tuple[str, GraphClient]:
     if connection is None or connection.connection_type != "facebook_page":
         raise ProviderFailure("not_configured")
     config, secrets = connection.config, connection.secrets
@@ -48,7 +50,9 @@ def configured(connection: RuntimeConnection | None) -> tuple[str, GraphClient]:
     ):
         raise ProviderFailure("not_configured")
     secret = secrets.get("app_secret")
-    return page, GraphClient(version, token, secret if isinstance(secret, str) else "")
+    return page, GraphClient(
+        version, token, secret if isinstance(secret, str) else "", boundary=boundary
+    )
 
 
 def _text(values: dict[str, Any], name: str, limit: int = 63206) -> str:
@@ -116,9 +120,12 @@ def _published(result: dict[str, Any], key: str) -> dict[str, Any]:
 
 
 def execute(
-    operation: str, values: dict[str, Any], connection: RuntimeConnection | None
+    operation: str,
+    values: dict[str, Any],
+    connection: RuntimeConnection | None,
+    boundary: WriteBoundary,
 ) -> dict[str, Any]:
-    page, client = configured(connection)
+    page, client = configured(connection, boundary)
     if operation == "publish_post":
         fields = {"message": _text(values, "text")}
         if values.get("link_url") is not None:

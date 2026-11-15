@@ -15,13 +15,14 @@ from flowsteward_extension_sdk import (
 
 from handlers.ingress import normalize
 from handlers.operations import OPERATIONS, WRITES, configured, execute
-from handlers.responses import ProviderFailure, failure, success
+from handlers.responses import ProviderFailure, WriteBoundary, failure, success
 
 MAX_INPUT_BYTES = 2 * 1024 * 1024
 
 
 def handle_request(payload: dict[str, Any]) -> dict[str, Any]:
     operation = ""
+    boundary = WriteBoundary()
     try:
         context = runtime_context_from_payload(payload)
         mode = payload.get("mode")
@@ -64,19 +65,17 @@ def handle_request(payload: dict[str, Any]) -> dict[str, Any]:
             return normalize(values, context)
         if operation not in OPERATIONS:
             raise ProviderFailure("invalid_payload")
-        return execute(operation, values, connection_from_payload(payload))
+        return execute(operation, values, connection_from_payload(payload), boundary)
     except ProviderFailure as error:
-        return failure(error, write=operation in WRITES)
+        return failure(boundary.classify(error), write=operation in WRITES)
     except (ValueError, TypeError, KeyError):
-        return failure(ProviderFailure("invalid_payload"), write=operation in WRITES)
-    except Exception:
-        # An unexpected failure after a write cannot prove absence of an effect.
-        write = operation in WRITES
         return failure(
-            ProviderFailure(
-                "ambiguous_external_effect" if write else "internal_error", uncertain=write
-            ),
-            write=write,
+            boundary.classify(ProviderFailure("invalid_payload")), write=operation in WRITES
+        )
+    except Exception:
+        return failure(
+            boundary.classify(ProviderFailure("internal_error")),
+            write=operation in WRITES,
         )
 
 

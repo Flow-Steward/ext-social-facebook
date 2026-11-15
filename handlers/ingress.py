@@ -38,13 +38,17 @@ def normalize(values: dict[str, Any], context: RuntimeContext) -> dict[str, Any]
     ):
         raise ProviderFailure("authentication_failed")
     config = _object(provider.get("provider_config"))
-    allowed = config.get("webhook_page_ids", [config.get("page_id")])
+    anchor_page = config.get("page_id")
+    allowed = config.get("webhook_page_ids", [anchor_page])
     if (
-        not isinstance(allowed, list)
+        not isinstance(anchor_page, str)
+        or not PAGE_ID.fullmatch(anchor_page)
+        or not isinstance(allowed, list)
         or len(allowed) > 100
         or not all(isinstance(page, str) and PAGE_ID.fullmatch(page) for page in allowed)
     ):
         raise ProviderFailure("not_configured")
+    own_pages = {*allowed, anchor_page}
     body = _object(request.get("json"))
     emitted = []
     entries = body.get("entry")
@@ -67,7 +71,7 @@ def normalize(values: dict[str, Any], context: RuntimeContext) -> dict[str, Any]
                 or value.get("verb") != "add"
                 or not isinstance(author, str)
                 or not PAGE_ID.fullmatch(author)
-                or author in allowed
+                or author in own_pages
                 or not isinstance(post, str)
                 or not OBJECT_ID.fullmatch(post)
                 or not post.startswith(page + "_")
