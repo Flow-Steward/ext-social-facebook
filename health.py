@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
-"""Exercise the real subprocess handshake without credentials or provider traffic."""
+"""Validate the real handler handshake in the host-launched health subprocess."""
 
 from __future__ import annotations
 
 import json
-
-# Local fixed-argv runtime handshake; no shell or external input.
-import subprocess  # nosec B404
-import sys
-from pathlib import Path
 
 
 def main() -> int:
@@ -26,24 +21,17 @@ def main() -> int:
     }
     healthy = False
     try:
-        # Fixed interpreter/script, resolved package cwd, and finite timeout.
-        process = subprocess.run(  # nosec B603
-            [sys.executable, "main.py"],
-            cwd=Path(__file__).resolve().parent,
-            input=json.dumps(payload),
-            capture_output=True,
-            text=True,
-            timeout=4,
-            check=False,
-        )
-        response = json.loads(process.stdout)
+        from main import handle_request
+
+        response = handle_request(payload)
+        result = response.get("result")
         healthy = (
-            process.returncode == 0
-            and response.get("ok") is True
-            and response.get("result", {}).get("contract_version") == "extension_host_v2"
+            response.get("ok") is True
+            and isinstance(result, dict)
+            and result.get("contract_version") == "extension_host_v2"
         )
-    except (OSError, ValueError, subprocess.TimeoutExpired):
-        pass
+    except Exception:
+        healthy = False
     print(json.dumps({"status": "healthy" if healthy else "failed"}))
     return 0 if healthy else 1
 

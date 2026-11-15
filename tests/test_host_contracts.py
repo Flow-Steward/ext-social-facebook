@@ -283,3 +283,26 @@ def test_actual_host_effect_confirmation_consumes_provider_metadata(
     if outcome == "succeeded":
         assert writes[0]["external_object_id"] == POST
         assert confirmed["__confirmed_replay_invocation"]["response"]["result"]["post_id"] == POST
+
+
+def test_actual_host_compiler_accepts_package_locale_bindings(host):
+    from core.infrastructure.extension_runtime.extension_runtime_compile import (
+        compile_extension_bundle,
+    )
+
+    compiled = compile_extension_bundle(ROOT, logical_bundle_dir_name="flowsteward_facebook")
+    assert compiled["lifecycle"]["compile"] == "ok", compiled.get("compile_errors")
+    assert compiled["compiled_manifest"]["locale_bundles"].get("en")
+    issues = [
+        issue
+        for field in (
+            "compile_errors",
+            "compile_warnings",
+            "validation_errors",
+            "validation_warnings",
+        )
+        for issue in compiled.get(field, [])
+    ]
+    assert not [
+        issue for issue in issues if issue.get("code") in {"locale_orphan_key", "locale_dead_key"}
+    ]

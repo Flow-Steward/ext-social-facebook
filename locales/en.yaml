@@ -1,4 +1,4 @@
-extension.display_name: "Facebook Pages"
-extension.description: "Publish Page posts and photos, read conversations, reply to comments, and trigger workflows from new Page comments."
-ui.page.connection.title: "Facebook Pages"
-ui.page.webhooks.title: "Webhooks"
+ext.display_name: "Facebook Pages"
+ext.description: "Publish Page posts and photos, read conversations, reply to comments, and trigger workflows from new Page comments."
+page.connection.title: "Facebook Pages"
+page.webhooks.title: "Webhooks"
