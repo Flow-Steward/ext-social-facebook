@@ -102,7 +102,8 @@ def _redact(value: Any, secrets: tuple[str, ...]) -> Any:
 class GraphClient:
     """One selected Page's Graph client; a write is never automatically retried."""
 
-    def __init__(  # nosec B107 -- Empty optional webhook secret means unset, never a usable credential.
+    # Empty optional webhook secret means unset, never a usable credential.
+    def __init__(  # nosec B107
         self,
         version: str,
         token: str,
