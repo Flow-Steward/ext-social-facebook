@@ -210,11 +210,18 @@ def test_actual_host_ingestion_rejects_foreign_project_before_record_or_claim(ho
     assert store.claims == {}
 
 
-@pytest.mark.parametrize("outcome", ["ambiguous", "succeeded", "definitive_rejection"])
+@pytest.mark.parametrize(
+    "outcome", ["ambiguous", "succeeded", "definitive_rejection", "http408_code1", "http408_code4"]
+)
 def test_actual_host_effect_confirmation_consumes_provider_metadata(
     host, graph, monkeypatch, outcome
 ):
-    if outcome == "ambiguous":
+    if outcome in {"http408_code1", "http408_code4"}:
+        # FS conservatively preserves timed-out writes, even with a Graph error body.
+        code = 1 if outcome == "http408_code1" else 4
+        graph.reply(408, {"error": {"code": code}})
+        expected = "timeout_unknown"
+    elif outcome == "ambiguous":
         graph.fail(TimeoutError("unknown outcome"))
         expected = "timeout_unknown"
     elif outcome == "succeeded":
@@ -280,6 +287,14 @@ def test_actual_host_effect_confirmation_consumes_provider_metadata(
     assert confirmed["status"] == writes[0]["status"] == expected
     assert len(writes) == len(graph.requests) == 1
     assert writes[0]["claim_token"] == "fixture-lease"
+    if outcome in {"http408_code1", "http408_code4"}:
+        assert response["external_effect_status"] == "timeout_unknown"
+        assert "definitely_no_external_effect" not in response
+        assert graph.requests[0]["method"] == "POST"
+        assert confirmed["operation_id"] == "publish_post"
+        assert confirmed["account_id"] == "account-a"
+        assert confirmed["project_id"] == "project-a"
+        assert confirmed["connection_id"] == "connection-page-a"
     if outcome == "succeeded":
         assert writes[0]["external_object_id"] == POST
         assert confirmed["__confirmed_replay_invocation"]["response"]["result"]["post_id"] == POST
