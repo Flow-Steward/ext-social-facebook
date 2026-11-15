@@ -1,0 +1,6 @@
+component_id: "facebook_callback"
+type: "callback_setup"
+title: "Meta app webhook"
+callback_id: "comments"
+setup_mode: "manual"
+description: "Choose one anchor connection per Meta app. Copy its HTTPS callback URL and verify token into the app dashboard; subscribe Pages to feed. Intake stays attached to this anchor connection."

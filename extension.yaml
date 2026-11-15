@@ -1,0 +1,144 @@
+manifest_version: 2
+lifecycle:
+  data_schema_version: 1
+  data_migrations: []
+extension_id: "flowsteward.facebook"
+kind: "tool_provider"
+version: "0.1.0"
+display_name: "Facebook Pages"
+description: "Publish Page posts and photos, read conversations, reply to comments, and trigger workflows from new Page comments."
+vendor:
+  name: "Flow Steward"
+  support_url: "https://github.com/Flow-Steward"
+listing:
+  category: "social"
+  tags:
+    - "facebook"
+    - "pages"
+    - "comments"
+  summary: "Facebook Pages posts, photos and comment workflows."
+features:
+  - "tool"
+  - "action"
+  - "query"
+  - "workflow_trigger"
+required_scopes:
+  - "extension:invoke"
+  - "read:projects"
+event_subscriptions:
+  -
+    event_type: "facebook.comment.created"
+    severity: "any"
+    conditions: {}
+egress:
+  hosts:
+    - "graph.facebook.com"
+schemas:
+  config: "schemas/config.schema.yaml"
+  secrets: "schemas/secrets.schema.yaml"
+  subscriptions: "schemas/subscriptions.schema.yaml"
+  input:
+    type: "object"
+  output:
+    type: "object"
+    required:
+      - "ok"
+    properties:
+      ok:
+        type: "boolean"
+entrypoint:
+  mode: "subprocess"
+  command:
+    - "python3"
+    - "main.py"
+health:
+  command:
+    - "python3"
+    - "health.py"
+  timeout_seconds: 5
+account_scope:
+  scope_type: "project"
+  description: "Each connection belongs to one project and one Facebook Page. Callback anchors have an explicit intake allowlist."
+runtime_grants:
+  resources:
+    project_connection: {}
+    provider_secrets:
+      secret_keys:
+        - "access_token"
+        - "app_secret"
+    callback_registrations: {}
+callbacks:
+  -
+    callback_id: "comments"
+    purpose: "inbound_events"
+    methods:
+      - "GET"
+      - "POST"
+    action_id: "ingress_event"
+    connection_scoped: true
+    auth:
+      type: "raw_body_hmac_sha256"
+      signature_header: "X-Hub-Signature-256"
+      signature_prefix: "sha256="
+      secret_name: "app_secret"
+      verification:
+        token_parameter: "hub.verify_token"
+        challenge_parameter: "hub.challenge"
+        required_parameters:
+          hub.mode: "subscribe"
+workflow_triggers:
+  -
+    trigger_type_id: "facebook_comment_created"
+    provider_key: "flowsteward.facebook"
+    display_name: "New Facebook Page comment"
+    description: "A new root comment by another person on an allowed Page post. Filters apply to the authenticated callback anchor."
+    event_name: "facebook.comment.created"
+    provider_ingress_url_required: true
+    config_schema:
+      type: "object"
+      additionalProperties: false
+      properties:
+        page_id:
+          type: "string"
+        post_id:
+          type: "string"
+    ui_schema:
+      fields:
+        -
+          name: "page_id"
+          widget_type: "text"
+          label: "Page ID"
+        -
+          name: "post_id"
+          widget_type: "text"
+          label: "Post ID"
+external_effects:
+  -
+    operation_id: "publish_post"
+    effect_kind: "content_publish"
+    channel: "facebook"
+    idempotency: "required"
+    test_mode_behavior: "suppress"
+  -
+    operation_id: "publish_photo"
+    effect_kind: "content_publish"
+    channel: "facebook"
+    idempotency: "required"
+    test_mode_behavior: "suppress"
+  -
+    operation_id: "reply_to_comment"
+    effect_kind: "comment_reply"
+    channel: "facebook"
+    idempotency: "required"
+    test_mode_behavior: "suppress"
+ui_manifest: "ui/ui_manifest.yaml"
+action_manifest: "ui/actions/actions.yaml"
+query_manifest: "ui/queries/queries.yaml"
+runtime:
+  contract_version: "extension_host_v2"
+  compatibility:
+    platform_min: "1.9.0"
+  extension_contract_v2:
+    connection_types: "contracts/connection_types.yaml"
+    operation_manifest: "contracts/operation_manifest.yaml"
+    step_ui_manifest: "contracts/step_ui_manifest.yaml"

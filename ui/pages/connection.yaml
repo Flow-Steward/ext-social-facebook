@@ -1,0 +1,9 @@
+page_id: "connection"
+title: "Facebook Pages"
+description: "Create or edit a Page connection, then open Webhooks to choose an intake anchor."
+project_scoped: true
+components:
+  -
+    ref: "../components/connection_form.yaml"
+  -
+    ref: "../components/setup_help.yaml"

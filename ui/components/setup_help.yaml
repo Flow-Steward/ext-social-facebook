@@ -1,0 +1,4 @@
+component_id: "facebook_setup_help"
+type: "markdown"
+title: "Page setup"
+content: "Use a Page access token with pages_manage_posts, pages_manage_engagement, pages_read_engagement and pages_read_user_content as needed. Webhooks also need pages_manage_metadata. Verification only reads Page identity. See the bundled README for app review, subscriptions and multiple Page routing."

@@ -1,0 +1,62 @@
+connection_types:
+  -
+    connection_type_id: "facebook_page"
+    display_name: "Facebook Page"
+    description: "Project-scoped Page access token and Meta app callback credentials."
+    auth:
+      type: "static_secret"
+    config_schema:
+      type: "object"
+      additionalProperties: false
+      required:
+        - "page_id"
+        - "app_id"
+        - "graph_api_version"
+      properties:
+        page_id:
+          type: "string"
+          pattern: "^[0-9]+$"
+          maxLength: 64
+          title: "Facebook Page ID"
+        app_id:
+          type: "string"
+          pattern: "^[0-9]+$"
+          maxLength: 64
+          title: "Meta app ID"
+        graph_api_version:
+          type: "string"
+          pattern: "^v[0-9]+\\.[0-9]+$"
+          maxLength: 16
+          title: "Graph API version"
+        webhook_page_ids:
+          type: "array"
+          maxItems: 100
+          items:
+            type: "string"
+            pattern: "^[0-9]+$"
+            maxLength: 64
+          description: "Pages allowed on this callback anchor. Omit to allow only page_id."
+    secret_schema:
+      type: "object"
+      additionalProperties: false
+      required:
+        - "access_token"
+        - "app_secret"
+      properties:
+        access_token:
+          type: "string"
+          minLength: 1
+          maxLength: 4096
+          title: "Page access token"
+        app_secret:
+          type: "string"
+          minLength: 1
+          maxLength: 4096
+          title: "Meta app secret"
+    ingress_schema:
+      type: "object"
+    capabilities:
+      notifications: false
+      human_decisions: false
+      webhook_ingress: true
+      polling_ingress: false

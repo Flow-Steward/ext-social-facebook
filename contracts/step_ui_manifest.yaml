@@ -1,0 +1,104 @@
+forms:
+  -
+    operation_id: "publish_post"
+    title: "Publish Facebook post"
+    fields:
+      -
+        name: "text"
+        label: "Text"
+        widget_type: "textarea"
+        required: true
+      -
+        name: "link_url"
+        label: "Link Url"
+        widget_type: "text"
+        required: false
+  -
+    operation_id: "publish_photo"
+    title: "Publish Facebook photo"
+    fields:
+      -
+        name: "image_url"
+        label: "Image Url"
+        widget_type: "text"
+        required: true
+      -
+        name: "text"
+        label: "Text"
+        widget_type: "textarea"
+        required: true
+  -
+    operation_id: "list_posts"
+    title: "List Facebook posts"
+    fields:
+      -
+        name: "limit"
+        label: "Limit"
+        widget_type: "number"
+        required: false
+      -
+        name: "cursor"
+        label: "Cursor"
+        widget_type: "text"
+        required: false
+  -
+    operation_id: "get_post"
+    title: "Get Facebook post"
+    fields:
+      -
+        name: "post_id"
+        label: "Post Id"
+        widget_type: "text"
+        required: true
+  -
+    operation_id: "list_comments"
+    title: "List Facebook comments"
+    fields:
+      -
+        name: "post_id"
+        label: "Post Id"
+        widget_type: "text"
+        required: true
+      -
+        name: "limit"
+        label: "Limit"
+        widget_type: "number"
+        required: false
+      -
+        name: "cursor"
+        label: "Cursor"
+        widget_type: "text"
+        required: false
+  -
+    operation_id: "list_replies"
+    title: "List Facebook replies"
+    fields:
+      -
+        name: "comment_id"
+        label: "Comment Id"
+        widget_type: "text"
+        required: true
+      -
+        name: "limit"
+        label: "Limit"
+        widget_type: "number"
+        required: false
+      -
+        name: "cursor"
+        label: "Cursor"
+        widget_type: "text"
+        required: false
+  -
+    operation_id: "reply_to_comment"
+    title: "Reply to Facebook comment"
+    fields:
+      -
+        name: "comment_id"
+        label: "Comment Id"
+        widget_type: "text"
+        required: true
+      -
+        name: "text"
+        label: "Text"
+        widget_type: "textarea"
+        required: true

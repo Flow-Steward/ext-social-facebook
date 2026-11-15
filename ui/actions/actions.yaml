@@ -1,0 +1,291 @@
+actions:
+  -
+    action_id: "publish_post"
+    workflow_visible: true
+    title: "Publish Facebook post"
+    description: "Publish Facebook post using the selected Page connection."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters:
+      -
+        name: "text"
+        type: "string"
+        required: true
+      -
+        name: "link_url"
+        type: "string"
+        required: false
+    result_fields:
+      - "result.post_id"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "publish_photo"
+    workflow_visible: true
+    title: "Publish Facebook photo"
+    description: "Publish Facebook photo using the selected Page connection."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters:
+      -
+        name: "image_url"
+        type: "string"
+        required: true
+      -
+        name: "text"
+        type: "string"
+        required: true
+    result_fields:
+      - "result.photo_id"
+      - "result.post_id"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "list_posts"
+    workflow_visible: true
+    title: "List Facebook posts"
+    description: "List Facebook posts using the selected Page connection."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters:
+      -
+        name: "limit"
+        type: "integer"
+        required: false
+      -
+        name: "cursor"
+        type: "string"
+        required: false
+    result_fields:
+      - "result.items"
+      - "result.next_cursor"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "get_post"
+    workflow_visible: true
+    title: "Get Facebook post"
+    description: "Get Facebook post using the selected Page connection."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters:
+      -
+        name: "post_id"
+        type: "string"
+        required: true
+    result_fields:
+      - "result.post"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "list_comments"
+    workflow_visible: true
+    title: "List Facebook comments"
+    description: "List Facebook comments using the selected Page connection."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters:
+      -
+        name: "post_id"
+        type: "string"
+        required: true
+      -
+        name: "limit"
+        type: "integer"
+        required: false
+      -
+        name: "cursor"
+        type: "string"
+        required: false
+    result_fields:
+      - "result.items"
+      - "result.next_cursor"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "list_replies"
+    workflow_visible: true
+    title: "List Facebook replies"
+    description: "List Facebook replies using the selected Page connection."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters:
+      -
+        name: "comment_id"
+        type: "string"
+        required: true
+      -
+        name: "limit"
+        type: "integer"
+        required: false
+      -
+        name: "cursor"
+        type: "string"
+        required: false
+    result_fields:
+      - "result.items"
+      - "result.next_cursor"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "reply_to_comment"
+    workflow_visible: true
+    title: "Reply to Facebook comment"
+    description: "Reply to Facebook comment using the selected Page connection."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters:
+      -
+        name: "comment_id"
+        type: "string"
+        required: true
+      -
+        name: "text"
+        type: "string"
+        required: true
+    result_fields:
+      - "result.comment_id"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "verify_connection"
+    workflow_visible: false
+    title: "Verify Page connection"
+    description: "Read the selected Page identity and compare it to page_id. Never publishes content."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters: []
+    result_fields:
+      - "result.verified"
+      - "result.page_id"
+    error_codes:
+      - "not_configured"
+      - "invalid_payload"
+      - "authentication_failed"
+      - "permission_denied"
+      - "foreign_object"
+      - "not_found"
+      - "rate_limited"
+      - "provider_unavailable"
+      - "timeout"
+      - "response_too_large"
+      - "ambiguous_external_effect"
+      - "internal_error"
+  -
+    action_id: "ingress_event"
+    workflow_visible: false
+    title: "Receive Page comments"
+    description: "Normalize authenticated feed callbacks for explicitly allowed Pages."
+    required_scopes:
+      - "extension:invoke"
+    handler:
+      mode: "extension"
+    mutates_platform: false
+    parameters: []
+    result_fields:
+      - "result.ingress_type"
+    error_codes:
+      - "invalid_payload"
+      - "authentication_failed"
+      - "not_configured"

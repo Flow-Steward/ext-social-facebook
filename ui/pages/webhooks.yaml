@@ -1,0 +1,9 @@
+page_id: "webhooks"
+title: "Webhooks"
+description: "Select a saved Page connection as the Meta app webhook anchor."
+project_scoped: true
+connection:
+  connection_type_ids:
+    - "facebook_page"
+components:
+  - ref: "../components/callback_setup.yaml"

@@ -1,0 +1,57 @@
+component_id: "facebook_connection"
+type: "connection_form"
+title: "Facebook Page connection"
+description: "Create one connection per Page. Store the Page token and app secret in encrypted project secret storage."
+data:
+  connection_kind: "extension"
+  connection_type: "facebook_page"
+  config_fields:
+    - "page_id"
+    - "app_id"
+    - "graph_api_version"
+    - "webhook_page_ids"
+  secret_fields:
+    - "access_token"
+    - "app_secret"
+  required_secret_fields:
+    - "access_token"
+    - "app_secret"
+defaults:
+  display_name: "Facebook Page"
+fields:
+  -
+    path: "display_name"
+    label: "Connection name"
+    widget: "text"
+  -
+    path: "page_id"
+    label: "Page ID"
+    widget: "text"
+    required: true
+  -
+    path: "app_id"
+    label: "Meta app ID"
+    widget: "text"
+    required: true
+  -
+    path: "graph_api_version"
+    label: "Graph API version"
+    widget: "text"
+    required: true
+    placeholder: "v27.0"
+    help: "Enter a supported version explicitly. Offline contract fixtures use v27.0."
+  -
+    path: "webhook_page_ids"
+    label: "Webhook Page allowlist"
+    widget: "json"
+    help: "Optional JSON list of Page IDs for this app callback anchor. Omit to allow only this connection’s Page."
+  -
+    path: "access_token"
+    label: "Page access token"
+    widget: "secret"
+    required: true
+  -
+    path: "app_secret"
+    label: "Meta app secret"
+    widget: "secret"
+    required: true
