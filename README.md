@@ -42,6 +42,8 @@ declare required host external-effect idempotency and Test Run suppression. An
 ambiguous write timeout must not be blindly retried: inspect Facebook and the
 host effect history first.
 
+Under Flow Steward's conservative write policy, HTTP408 after a POST remains an unknown effect even when its response includes a Graph error code.
+
 ## Receive new comments
 
 After saving the first Page connection, open **Webhooks**, select the project's

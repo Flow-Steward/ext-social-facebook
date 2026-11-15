@@ -164,12 +164,11 @@ class GraphClient:
                     failure = "not_found"
                 else:
                     failure = "provider_unavailable"
-                # Only explicit Graph rejection with a 4xx response proves no write.
-                if method == "POST" and 400 <= status < 500:
+                # A timed-out POST remains uncertain under the conservative write policy.
+                rejection = 400 <= status < 500 and status != 408
+                if method == "POST" and rejection:
                     self.boundary.proven_rejections += 1
-                raise ProviderFailure(
-                    failure, uncertain=method == "POST" and not (400 <= status < 500)
-                )
+                raise ProviderFailure(failure, uncertain=method == "POST" and not rejection)
             paging = result.get("paging")
             cursors = paging.get("cursors") if isinstance(paging, dict) else None
             cursor = cursors.get("after") if isinstance(cursors, dict) else None

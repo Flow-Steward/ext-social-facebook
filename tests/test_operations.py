@@ -180,6 +180,8 @@ def test_list_returns_bounded_items_and_opaque_cursor_without_following_next_url
         (403, 200, "permission_denied"),
         (429, 4, "rate_limited"),
         (503, 2, "provider_unavailable"),
+        (408, 1, "provider_unavailable"),
+        (408, 4, "rate_limited"),
     ],
 )
 def test_provider_error_is_classified_and_secret_text_is_redacted(
@@ -193,6 +195,9 @@ def test_provider_error_is_classified_and_secret_text_is_redacted(
     assert response["errors"][0]["message"] == response["error"]
     captured = capsys.readouterr()
     assert TOKEN not in json.dumps(response) + captured.out + captured.err
+    assert [request["method"] for request in graph.requests] == ["GET"]
+    assert "external_effect_status" not in response
+    assert "definitely_no_external_effect" not in response
 
 
 def test_redirect_is_refused_without_following_foreign_location(graph):
