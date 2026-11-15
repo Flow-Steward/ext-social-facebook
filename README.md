@@ -1,5 +1,10 @@
 # Facebook Pages for Flow Steward
 
+Publish organic Facebook Page posts and photos from Flow Steward workflows. Read posts,
+comments and replies, respond as the selected Page, and start a workflow when a new
+root comment arrives. Prepare content or request human approval in earlier workflow
+steps; this extension sends the approved content to Facebook.
+
 Standalone `flowsteward.facebook` tool provider, version 0.1.0, host contract
 `extension_host_v2`, public extension SDK 0.5.0 or later. The generic callback
 profile requires extension runtime capability 1.9.0, delivered with app release
@@ -126,3 +131,21 @@ offline results.
 - [Meta Business SDK Graph request encoding](https://github.com/facebook/facebook-python-business-sdk/blob/main/facebook_business/api.py)
 
 See `PRIVACY.md` for data handling and `BRANDING.md` for artwork provenance.
+
+## Release packaging
+
+The agreed publisher repository is `Flow-Steward/ext-social-facebook`. Its creation,
+initial push and first release are coordinated with the Core release owner;
+these source files do not claim that a public release already exists.
+
+The prepared CI workflow runs the standalone tests, builds the archive from
+tracked source with `.github/scripts/package_extension.py`, and checks it with
+the catalog checker. In CI, an unavailable catalog checker fails the job; a
+manual local offline preview still reports that catalog validation was not
+performed. The release verifies the CI artifact checksums before attaching the
+ZIP and SHA256SUMS to the release. Packaging excludes `.github/`, development wheels and
+caches. The release workflow checks that `v<version>` matches `extension.yaml`,
+runs CI and publishes the checked artifact. Create/push a release tag only after
+the agreed Core release acceptance and the publisher's final catalog review.
+Catalog registration is a separate owner-managed change; never edit generated
+catalog indexes or replace an already published version's ZIP.

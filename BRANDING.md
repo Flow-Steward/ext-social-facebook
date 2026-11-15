@@ -22,3 +22,8 @@ The official guidelines require the current logo for new communications; release
 publication review must compare the packaged image with the provider's current
 approved brand assets and verify catalog rendering before publication. The exact
 source and hash above record provenance, not a claim of trademark permission.
+
+2026-11-15 authoring review: the official source was downloaded again and its
+bytes matched the unchanged tracked icon. ZIP/hash results and the local card-preview
+status are recorded in the release handoff. Published catalog rendering
+remains a publisher check after catalog generation.

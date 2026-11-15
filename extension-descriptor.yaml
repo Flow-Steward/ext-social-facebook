@@ -7,16 +7,16 @@ release_version: "0.1.0"
 extension_type: "service_extension"
 identity:
   display_name: "Facebook Pages"
-  description: "Publish Page posts and photos, read conversations, reply to comments, and trigger workflows from new Page comments."
+  description: "Publish Facebook Page posts and photos, reply to comments, and start workflows when new comments arrive."
   tags:
     - "facebook"
     - "pages"
 vendor:
   vendor_name: "Flow Steward"
-  support_url: "https://github.com/Flow-Steward"
+  support_url: "https://github.com/Flow-Steward/ext-social-facebook/issues"
 listing:
   visibility: "public_reference"
-  category: "social"
+  category: "marketing"
 distribution:
   channel: "private_byo"
   execution_modes:
