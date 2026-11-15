@@ -2,8 +2,8 @@ actions:
   -
     action_id: "publish_post"
     workflow_visible: true
-    title: "Publish Facebook post"
-    description: "Publish Facebook post using the selected Page connection."
+    title: "Publish a Facebook Page post"
+    description: "Publish a text post as the selected Facebook Page, with an optional blog or website link; return the new post ID."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -36,8 +36,8 @@ actions:
   -
     action_id: "publish_photo"
     workflow_visible: true
-    title: "Publish Facebook photo"
-    description: "Publish Facebook photo using the selected Page connection."
+    title: "Publish a photo to a Facebook Page"
+    description: "Publish an image from a public HTTPS URL with a caption as the selected Page; return its photo and post IDs."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -71,8 +71,8 @@ actions:
   -
     action_id: "list_posts"
     workflow_visible: true
-    title: "List Facebook posts"
-    description: "List Facebook posts using the selected Page connection."
+    title: "List Facebook Page posts"
+    description: "Read one page of posts from the selected Facebook Page, returning items and a cursor for the next page."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -106,8 +106,8 @@ actions:
   -
     action_id: "get_post"
     workflow_visible: true
-    title: "Get Facebook post"
-    description: "Get Facebook post using the selected Page connection."
+    title: "Get a Facebook Page post"
+    description: "Read a post by its ID after checking that it belongs to the selected Facebook Page."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -136,8 +136,8 @@ actions:
   -
     action_id: "list_comments"
     workflow_visible: true
-    title: "List Facebook comments"
-    description: "List Facebook comments using the selected Page connection."
+    title: "List comments on a Facebook post"
+    description: "Read one page of comments on a post owned by the selected Page; return comments and the next-page cursor."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -175,8 +175,8 @@ actions:
   -
     action_id: "list_replies"
     workflow_visible: true
-    title: "List Facebook replies"
-    description: "List Facebook replies using the selected Page connection."
+    title: "List replies to a Facebook comment"
+    description: "Read one page of replies to a comment on the selected Page after verifying the parent post."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -214,8 +214,8 @@ actions:
   -
     action_id: "reply_to_comment"
     workflow_visible: true
-    title: "Reply to Facebook comment"
-    description: "Reply to Facebook comment using the selected Page connection."
+    title: "Reply to a Facebook Page comment"
+    description: "Send a text reply as the selected Page after verifying the comment belongs to one of its posts; return the reply ID."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -248,8 +248,8 @@ actions:
   -
     action_id: "verify_connection"
     workflow_visible: false
-    title: "Verify Page connection"
-    description: "Read the selected Page identity and compare it to page_id. Never publishes content."
+    title: "Verify the Facebook Page connection"
+    description: "Read the configured Page identity and check its ID without publishing a post or comment."
     required_scopes:
       - "extension:invoke"
     handler:
@@ -275,8 +275,8 @@ actions:
   -
     action_id: "ingress_event"
     workflow_visible: false
-    title: "Receive Page comments"
-    description: "Normalize authenticated feed callbacks for explicitly allowed Pages."
+    title: "Receive new Facebook Page comments"
+    description: "Convert authenticated Page comment callbacks into new-comment workflow events for the configured Pages."
     required_scopes:
       - "extension:invoke"
     handler:
