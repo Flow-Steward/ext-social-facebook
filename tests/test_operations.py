@@ -8,6 +8,8 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 from conftest import COMMENT, OTHER_PAGE, PAGE, POST, TOKEN, action, invoke
 
+from handlers import operations
+
 
 def test_publish_post_maps_message_and_link_to_selected_page(graph):
     graph.reply(200, {"id": POST})
@@ -295,3 +297,72 @@ def test_reply_ownership_read_timeout_proves_no_write_was_sent(graph):
     assert response["error_code"] == "timeout"
     assert response["definitely_no_external_effect"] is True
     assert [request["method"] for request in graph.requests] == ["GET"]
+
+
+@pytest.mark.parametrize(
+    "status, provider_code",
+    [
+        pytest.param(200, [], id="ok-list"),
+        pytest.param(200, {}, id="ok-map"),
+        pytest.param(503, [], id="unavailable-list"),
+        pytest.param(503, {}, id="unavailable-map"),
+    ],
+)
+def test_malformed_error_code_after_write_has_unknown_effect(graph, status, provider_code):
+    graph.reply(status, {"error": {"code": provider_code, "message": "unsafe " + TOKEN}})
+    response = invoke(action("publish_post", {"text": "Send only once"}))
+    assert response["ok"] is False
+    assert response["error_code"] == "ambiguous_external_effect", response
+    assert response["external_effect_status"] == "timeout_unknown"
+    assert response.get("definitely_no_external_effect") is not True
+    assert [request["method"] for request in graph.requests] == ["POST"]
+    assert TOKEN not in json.dumps(response)
+
+
+@pytest.mark.parametrize(
+    "operation, values",
+    [
+        pytest.param("publish_post", {"text": "Once"}, id="post"),
+        pytest.param(
+            "publish_photo",
+            {"image_url": "https://example.org/photo.png", "text": "Once"},
+            id="photo",
+        ),
+        pytest.param("reply_to_comment", {"comment_id": COMMENT, "text": "Once"}, id="reply"),
+    ],
+)
+@pytest.mark.parametrize(
+    "exception_type",
+    [
+        pytest.param(ValueError, id="value-error"),
+        pytest.param(TypeError, id="type-error"),
+        pytest.param(KeyError, id="key-error"),
+    ],
+)
+def test_unexpected_post_send_result_error_cannot_prove_no_effect(
+    graph,
+    monkeypatch,
+    operation,
+    values,
+    exception_type,
+):
+    if operation == "reply_to_comment":
+        graph.reply(200, {"id": COMMENT, "object": {"id": POST}, "parent": {"id": POST}})
+    graph.reply(200, {"id": POST})
+
+    def broken_result_mapping(*args, **kwargs):
+        # Fault injection occurs after the real transport has returned a POST
+        # response, outside its exception handler. Exception type is not proof
+        # that the provider has done nothing.
+        assert graph.requests[-1]["method"] == "POST"
+        raise exception_type("post-send parsing failure " + TOKEN)
+
+    monkeypatch.setattr(operations, "_published", broken_result_mapping)
+    response = invoke(action(operation, values))
+    assert response["ok"] is False
+    assert response["error_code"] == "ambiguous_external_effect", response
+    assert response["external_effect_status"] == "timeout_unknown"
+    assert response.get("definitely_no_external_effect") is not True
+    assert sum(request["method"] == "POST" for request in graph.requests) == 1
+    assert len(graph.requests) == (2 if operation == "reply_to_comment" else 1)
+    assert TOKEN not in json.dumps(response)

@@ -168,3 +168,27 @@ def test_created_event_identity_is_namespaced_by_provider_connection_page_post_a
 @pytest.mark.parametrize("body", [{"object": "user", "entry": []}, {"object": "page", "entry": []}])
 def test_unrelated_or_empty_provider_batch_emits_nothing(body):
     assert events(ingress(body)) == []
+
+
+def test_anchor_authored_comment_is_ignored_when_intake_allowlist_excludes_anchor():
+    post = OTHER_PAGE + "_3"
+    body = delivery(
+        [comment_change(post_id=post, parent_id=post, **{"from": {"id": PAGE}})],
+        page=OTHER_PAGE,
+    )
+    assert events(ingress(body, webhook_page_ids=[OTHER_PAGE])) == []
+
+
+def test_foreign_person_on_allowed_page_retains_excluded_anchor_identity():
+    post = OTHER_PAGE + "_3"
+    body = delivery([comment_change(post_id=post, parent_id=post)], page=OTHER_PAGE)
+    emitted = events(ingress(body, webhook_page_ids=[OTHER_PAGE]))
+    assert len(emitted) == 1
+    event = emitted[0]
+    assert event["project_id"] == "project-a"
+    assert event["payload"]["connection_id"] == "connection-anchor"
+    assert event["payload"]["page_id"] == OTHER_PAGE
+    assert event["payload"]["post_id"] == post
+    assert event["payload"]["comment_id"] == COMMENT
+    assert event["payload"]["author_id"] == "60006"
+    assert event["source_id"] == event["correlation_id"] == event["payload"]["dedupe_key"]
