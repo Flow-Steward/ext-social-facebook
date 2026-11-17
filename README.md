@@ -5,7 +5,7 @@ comments and replies, respond as the selected Page, and start a workflow when a 
 root comment arrives. Prepare content or request human approval in earlier workflow
 steps; this extension sends the approved content to Facebook.
 
-Standalone `flowsteward.facebook` tool provider, version 0.1.0, host contract
+Standalone `flowsteward.facebook` tool provider, version 0.1.1, host contract
 `extension_host_v2`, public extension SDK 0.5.0 or later. The generic callback
 profile requires extension runtime capability 1.9.0, delivered with app release
 0.9.18 or later; these are separate version numbers.
@@ -149,3 +149,11 @@ runs CI and publishes the checked artifact. Create/push a release tag only after
 the agreed Core release acceptance and the publisher's final catalog review.
 Catalog registration is a separate owner-managed change; never edit generated
 catalog indexes or replace an already published version's ZIP.
+
+## Support
+
+Open the extension's **Support** page in Flow Steward to ask a question, report a
+problem or request a feature. You can also [create a GitHub issue](https://github.com/Flow-Steward/ext-social-facebook/issues/new/choose)
+or [browse existing issues](https://github.com/Flow-Steward/ext-social-facebook/issues).
+Issues are public; never include passwords, API keys, tokens, connection strings
+or customer data.

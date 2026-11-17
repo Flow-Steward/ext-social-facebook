@@ -4,7 +4,7 @@ lifecycle:
   data_migrations: []
 extension_id: "flowsteward.facebook"
 kind: "tool_provider"
-version: "0.1.0"
+version: "0.1.1"
 display_name: "Facebook Pages"
 description: "Publish Facebook Page posts and photos, reply to comments, and start workflows when new comments arrive."
 vendor:

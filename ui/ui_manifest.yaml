@@ -4,3 +4,5 @@ pages:
     ref: "pages/connection.yaml"
   -
     ref: "pages/webhooks.yaml"
+  -
+    ref: "pages/support.yaml"

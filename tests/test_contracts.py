@@ -30,7 +30,7 @@ def test_identity_and_host_contract_match_descriptor():
     manifest = load("extension.yaml")
     descriptor = load("extension-descriptor.yaml")
     assert manifest["extension_id"] == descriptor["extension_id"] == "flowsteward.facebook"
-    assert manifest["version"] == descriptor["release_version"] == "0.1.0"
+    assert manifest["version"] == descriptor["release_version"] == "0.1.1"
     assert manifest["kind"] == "tool_provider"
     assert (
         manifest["runtime"]["contract_version"]
@@ -111,7 +111,11 @@ def test_connection_ui_explicitly_saves_config_and_secret_fields():
 
 def test_manual_webhook_setup_uses_selected_page_connection_without_blocking_creation():
     pages = load("ui/ui_manifest.yaml")["pages"]
-    assert {row["ref"] for row in pages} == {"pages/connection.yaml", "pages/webhooks.yaml"}
+    assert {row["ref"] for row in pages} == {
+        "pages/connection.yaml",
+        "pages/webhooks.yaml",
+        "pages/support.yaml",
+    }
     create_page = load("ui/pages/connection.yaml")
     assert create_page["project_scoped"] is True
     assert "connection" not in create_page
